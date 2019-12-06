@@ -66,9 +66,6 @@ def validate_protection_tag(protection_tag):
 
 
 def validate_directory_attribute(directory_location):
-    # if directory_location is None:
-    #     return None
-    #
     if type(directory_location) is str:
         directory_location = pathlib.Path(directory_location)
         if directory_location.exists():
