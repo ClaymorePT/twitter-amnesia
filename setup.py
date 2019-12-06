@@ -26,7 +26,7 @@ setup(
     maintainer='Carlos Miguel Ferreira',
     maintainer_email='carlosmf.pt@gmail.com',
     description='A twitter service used to delete tweets not protected by a custom tag and older than a specific date.',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     keywords=['Twitter', 'Management'],
     license='GPLv3',
     classifiers=[
