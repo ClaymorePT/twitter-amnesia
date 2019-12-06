@@ -1,20 +1,20 @@
 Twitter Amnesia
 ===============
 
+.. image:: https://badge.fury.io/py/twitter-amnesia.svg
+    :target: https://badge.fury.io/py/twitter-amnesia
+
 Introduction
 ~~~~~~~~~~~~
 
 A service which can be deployed to erase tweets older than a specific
 date and not marked with a custom tag
 
-{:toc}
-
 Requirements
 ~~~~~~~~~~~~
 
--  Python 3.8 or recent
--  Required Python modules (installed automatically when installing this
-   program).
+-  Python 3.8
+-  Required Python modules.
 
    -  python-twitter==3.5
    -  python-dateutil==2.8.1
