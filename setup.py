@@ -21,7 +21,7 @@ def requirements_file_to_list(fn='requirements.txt'):
 
 setup(
     name='twitter-amnesia',
-    version='0.0.1',
+    version='1.0.0',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=requirements_file_to_list(),
