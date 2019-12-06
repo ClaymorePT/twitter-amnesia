@@ -65,10 +65,7 @@ def main():
         )
         this_user_credentials = api.VerifyCredentials()
         __log.info(
-            "Name: {}; Screen Name: {}".format(
-                this_user_credentials.name,
-                this_user_credentials.screen_name
-            )
+            f"Name: {this_user_credentials.name:s}; Screen Name: {this_user_credentials.screen_name:s}"
         )
         removed_tweets_counter = 0
 
@@ -79,19 +76,21 @@ def main():
             max_id = statuses[-1].id
             for status in statuses:
                 if parsed_args.protection_tag in status.text[0:len(parsed_args.protection_tag)]:
-                    __log.info("Tweet with ID {:d} skipped. Protection tag present.".format(status.id))
+                    __log.info(f"Tweet with ID {status.id:d} skipped. Protection tag present.")
                     continue
-                if date_until.astimezone() > parser.parse(status.created_at).astimezone():
+                elif date_until.astimezone() <= parser.parse(status.created_at).astimezone():
+                    __log.info(f"Tweet with ID {status.id:d} skipped. Not old enough to be removed.")
+                    continue
+                else:
                     if parsed_args.saving_directory:
-                        __log.info("Saving tweet with ID {:d}.".format(status.id))
-                        with open("{}/{:d}".format(parsed_args.saving_directory, status.id), "wb") as file:
+                        __log.info(f"Saving tweet with ID {status.id:d}.")
+                        with open(f"{parsed_args.saving_directory}/{status.id:d}", "wb") as file:
                             pickle.dump(status.AsDict(), file)
 
                     api.DestroyStatus(status.id)
                     removed_tweets_counter += 1
-                    __log.warning("Tweet {:d} deleted.".format(status.id))
+                    __log.warning(f"Tweet {status.id:d} deleted.")
             statuses = api.GetUserTimeline(trim_user=True, max_id=max_id-1, count=200)
-
         __log.info(f"Total number of deleted tweets: {removed_tweets_counter:d}.")
 
     except Exception:
