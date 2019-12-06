@@ -11,7 +11,7 @@ def requirements_file_to_list(fn='requirements.txt'):
 
 setup(
     name='twitter-amnesia',
-    version='1.1.1',
+    version='1.1.2',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=requirements_file_to_list(),
@@ -30,7 +30,7 @@ setup(
     keywords=['Twitter', 'Management'],
     license='GPLv3',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.8',
