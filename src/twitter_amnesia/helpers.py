@@ -1,9 +1,8 @@
 import sys
 import linecache
-from os import environ
 from pathlib import Path
 
-__pwd = Path(environ["PWD"])
+__pwd = Path(".")
 
 
 def __byteStr2HexStr(byteStr):
@@ -21,7 +20,7 @@ def __detailed_trace(ex_type, ex_value, ex_tb):
         frame = ex_tb.tb_frame
         sourceFileName = frame.f_code.co_filename
         try: # To prevent the cases where the file does not belong to the program/project code
-            sourceFileLocation = Path(sourceFileName).absolute().relative_to(__pwd)
+            sourceFileLocation = Path(sourceFileName).absolute().relative_to(Path("."))
         except ValueError:
             sourceFileLocation = Path(sourceFileName)
 
