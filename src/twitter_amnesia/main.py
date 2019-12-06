@@ -8,7 +8,7 @@ import logging
 import sys
 import datetime
 from datetime import *
-import re
+import pickle
 
 import twitter
 from dateutil.relativedelta import *
@@ -16,8 +16,6 @@ from dateutil import parser
 
 from twitter_amnesia.helpers import custom_logging_callback, logger_module_name
 from twitter_amnesia.arg_parsing import parse_arguments
-
-import pickle
 
 # Initialize Exception Hook
 sys.excepthook = (lambda tp, val, tb: custom_logging_callback(logging.getLogger(), logging.ERROR, tp, val, tb))
