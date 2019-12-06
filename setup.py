@@ -11,7 +11,7 @@ def requirements_file_to_list(fn='requirements.txt'):
 
 setup(
     name='twitter-amnesia',
-    version='1.1.0',
+    version='1.1.1',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=requirements_file_to_list(),
@@ -26,7 +26,7 @@ setup(
     maintainer='Carlos Miguel Ferreira',
     maintainer_email='carlosmf.pt@gmail.com',
     description='A twitter service used to delete tweets not protected by a custom tag and older than a specific date.',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     keywords=['Twitter', 'Management'],
     license='GPLv3',
     classifiers=[
