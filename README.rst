@@ -4,6 +4,9 @@ Twitter Amnesia
 .. image:: https://badge.fury.io/py/twitter-amnesia.svg
     :target: https://badge.fury.io/py/twitter-amnesia
 
+.. image:: https://circleci.com/gh/ClaymorePT/twitter-amnesia.svg?style=svg
+    :target: https://circleci.com/gh/ClaymorePT/twitter-amnesia
+
 Introduction
 ~~~~~~~~~~~~
 
