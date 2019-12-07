@@ -1,4 +1,5 @@
 
+
 # Python CircleCI 2.1 configuration file
 #
 
@@ -7,11 +8,11 @@ version: 2.1
 executors:
   python_executor:
     docker:
-      - image: python:3.8-alpine
+      - image: python:3.8
 
 
 jobs:
-  install-dependencies:
+  deploy-package:
     executor: python_executor
     working_directory: ~/repo
     steps:
@@ -19,40 +20,26 @@ jobs:
           name: install dependencies
           command: |
             pip install twine wheel
-
-  build-package:
-    executor: python_executor
-    working_directory: ~/repo
-    steps:
       - checkout
       - run:
-          name: build wheel package
+          name: Build Wheel Package
           command: |
             cd ~/repo
             python setup.py bdist_wheel
-
-  deploy-package:
-    executor: python_executor
-    working_directory: ~/repo
-    steps:
       - run:
-          name: run twine and upload wheel
+          name: Run Twine and Upload Wheel Packet
           command: |
             cd ~/repo
-            twine -u $PYPI_USERNAME -p $PYPI_PASSWORD --verbose  ./dist/*
+            twine upload -u ${PYPI_USERNAME} -p ${PYPI_PASSWORD} --verbose  ./dist/*
 
 workflows:
   version: 2.1
   workflows-build-package:
     jobs:
-      - install-dependencies
-      - build-package:
+      - deploy-package:
           filters:
             tags:
               only: /V([0-9]+\.[0-9]+\.[0-9]+)/
             branches:
               only:
                 - release
-      - deploy-package:
-          requires:
-            - build-package
