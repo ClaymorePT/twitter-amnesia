@@ -1,0 +1,7 @@
+twitter:
+  bearer_token: "<Bearer Token>" # Tweeter API Bearer Token. This requires at least a Free API Development Account
+  username: "<Twitter Username>" # Your Twitter Handle
+
+protection_tag: "<Protection Tag>" # Format Example: [P]
+storage_location: "./storage" # Optional Configuration: Location to where to store Tweets before deleting them.
+days_to_expire: 30 # Tweets lifetime. Tweets older than X Days will be deleted.

@@ -1,15 +1,19 @@
 # By default, ignore everything...
 /*
 
+# ... and always ignore specific directories with these names
 **/__pycache__/
+**/twitter_amnesia.egg-info/
+
 # ... except these directories
 !/src/
 !/.circleci/
+!/config-example/
 
 # ... except these specific files
 !/.gitignore
 !/LICENSE.txt
 !/README.rst
 !/requirements.txt
-!/setup.py
-
+!/development_requirements.txt
+!/pyproject.toml

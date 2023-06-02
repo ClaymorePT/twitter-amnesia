@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools==67.8.0", "pip==23.1.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twitter-amnesia"
+requires-python = ">=3.10.0,<3.12"
+description = "A twitter service used to delete tweets not protected by a custom tag and older than a specific date."
+authors = [
+    { name = "Carlos M. Ferreira", email="carlosmf.pt@gmail.com" }
+]
+keywords = ['Twitter', 'Management']
+license = { text = "Other/Proprietary License" }
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+]
+
+dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
+
+[project.scripts]
+twitter-amnesia = "twitter_amnesia:main"
+
+[tool.setuptools]
+packages = [
+    'twitter_amnesia',
+]
+
+[tool.setuptools.package-dir]
+"twitter_amnesia" = "src/twitter_amnesia"
+
+[tool.setuptools.dynamic]
+dependencies = { file = "requirements.txt" }
+readme = { file = "README.rst" }
+version = { attr = "twitter_amnesia.version.VERSION" }
+
+[tool.setuptools.dynamic.optional-dependencies]
+dev = { file = "development_requirements.txt" }
+
+[tool.pylint]
+load-plugins=[
+    "pylint.extensions.emptystring", # Empty String Checkers - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#compare-to-empty-string-checker
+    "pylint.extensions.comparetozero", # Compare to Zero Checkers - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#compare-to-zero-checker
+    "pylint.extensions.comparison_placement", # Comparison Placement Checkers - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#comparison-placement-checker
+    "pylint.extensions.confusing_elif", # Confusing elif Checkers - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#confusing-elif-checker
+    "pylint.extensions.for_any_all", # Any or All Checker - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#consider-using-any-or-all-checker
+    "pylint.extensions.bad_builtin", # Deprecated Buitins Usage Checker - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#deprecated-builtins-checker
+    # Design Checker (McCabe Checker) - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#design-checker
+    # https://en.wikipedia.org/wiki/Cyclomatic_complexity#Interpretation
+    "pylint.extensions.mccabe",
+    "pylint.extensions.check_elif", # Elif Is Used Checker - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#else-if-used-checker
+    "pylint.extensions.empty_comment", # Empty Comment Checker - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#empty-comment-checker
+    "pylint.extensions.eq_without_hash", # Implementing __eq__ without implementing __hash__ method - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#eq-without-hash-checker
+    "pylint.extensions.private_import", # Private Import Checker - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#import-private-name-checker
+    "pylint.extensions.redefined_loop_name", # Redifined Loop Name Checker - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#redefined-loop-name-checker
+    "pylint.extensions.set_membership", # Set Membership Checker - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#set-membership-checker
+    "pylint.extensions.typing", # Typing Checkers - https://pylint.pycqa.org/en/v2.15.10/user_guide/checkers/extensions.html#pylint-extensions-typing
+]
+jobs = 0
+max-line-length = 360
+output-format = "colorized"
+reports = true
+include-naming-hint = true
+logging-format-style = "new"
+runtime-typing = true
+disable = [
+    "R0903", # (too-few-public-methods)
+    "W1203", # (logging-fstring-interpolation)
+]
+enable = [
+    "W1201", # (logging-not-lazy)
+]
+max-complexity = 20 # Relaxes pylint.extensions.mccabe Cyclomatic complexity up to 20
+
+[tool.coverage.run]
+source = ["src/twitter_amnesia"]
+omit = [
+    "src/twitter_amnesia/__main__.py",
+]

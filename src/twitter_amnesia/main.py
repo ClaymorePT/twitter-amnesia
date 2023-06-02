@@ -4,102 +4,102 @@ Twitter Amnesia
 A service which can be deployed to erase tweets older than a specific date and not marked with a custom tag
 """
 
-import logging
-import sys
 import datetime
-from datetime import *
+import logging
 import pickle
+import sys
+from datetime import datetime, timezone
 
-import twitter
-from dateutil.relativedelta import *
-from dateutil import parser
+import rfc3339
+from dateutil.relativedelta import relativedelta
+from pytwitter import Api
 
-from twitter_amnesia.helpers import custom_logging_callback, logger_module_name
 from twitter_amnesia.arg_parsing import parse_arguments
+from twitter_amnesia.configuration_parser import load_configurations
+from twitter_amnesia.helpers import custom_logging_callback, logger_module_name
 
 # Initialize Exception Hook
 sys.excepthook = (lambda tp, val, tb: custom_logging_callback(logging.getLogger(), logging.ERROR, tp, val, tb))
 
 
 # Initialize logger for this module
-__log_format = '[{asctime:^s}][{levelname:^8s}]: {message:s}'
-__log_format_debug = '[{asctime:^s}][{levelname:^8s}][{name:s}|{funcName:s}|{lineno:d}]: {message:s}'
-__log_datefmt = '%Y/%m/%d|%H:%M:%S (%Z)'
-__log = logging.getLogger(logger_module_name(__file__))
+_LOG_FORMAT = '[{asctime:^s}][{levelname:^8s}]: {message:s}'
+_LOG_FORMAT_DEBUG = '[{asctime:^s}][{levelname:^8s}][{name:s}|{funcName:s}|{lineno:d}]: {message:s}'
+_LOG_DATE_FORMAT = '%Y/%m/%d|%H:%M:%S (%Z)'
+_log = logging.getLogger(logger_module_name(__file__))
 
 
 def main():
-    try:
-        parsed_args = parse_arguments()
-        if sys.flags.debug:
-            logging.basicConfig(format=__log_format_debug, datefmt=__log_datefmt, style='{', level=logging.DEBUG)
-        else:
-            logging.basicConfig(format=__log_format, datefmt=__log_datefmt, style='{', level=parsed_args.logLevel)
+    """
+    The main entry point for this service
+    """
 
-        if sys.flags.debug:
-            __log.debug(
-                ''.join(['CLI arguments: ']+list(
-                                ('  {:s}: {:s}'.format(
-                                    str(key), str(data)
-                                ) for (key, data) in vars(parsed_args).items())
-                            )
-                        )
-            )
+    parsed_args = parse_arguments()
+    if sys.flags.debug:
+        logging.basicConfig(format=_LOG_FORMAT_DEBUG, datefmt=_LOG_DATE_FORMAT, style='{', level=logging.DEBUG)
+    else:
+        logging.basicConfig(format=_LOG_FORMAT, datefmt=_LOG_DATE_FORMAT, style='{', level=parsed_args.logLevel)
 
-        date_until = datetime.now() - relativedelta(
-            days=parsed_args.days,
-            months=parsed_args.months,
-            years=parsed_args.years
+    if sys.flags.debug:
+        _log.debug(
+            ''.join(['CLI arguments: ']+list((f'  {key:s}: {data:s}' for (key, data) in vars(parsed_args).items())))
         )
 
-        __log.warning(
-            "Tweets created before {:s} will be deleted.".format(date_until.strftime("%Y-%m-%d"))
-        )
 
-        api = twitter.Api(
-            consumer_key=parsed_args.consumer_key,
-            consumer_secret=parsed_args.consumer_secret,
-            access_token_key=parsed_args.token_key,
-            access_token_secret=parsed_args.token_secret,
-            sleep_on_rate_limit=False
-        )
-        this_user_credentials = api.VerifyCredentials()
-        __log.info(
-            f"Name: {this_user_credentials.name:s}; Screen Name: {this_user_credentials.screen_name:s}"
-        )
-        removed_tweets_counter = 0
+    service_configurations = load_configurations(parsed_args.configuration_file)
+    username = service_configurations.twitter_configurations.username
+    storage_location = service_configurations.storage_location
+    protection_tag = service_configurations.protection_tag
+    date_until = (datetime.now(timezone.utc) - relativedelta(days=service_configurations.days_to_expire))
 
-        statuses = api.GetUserTimeline(trim_user=True, count=1)
-        if len(statuses):
-            __log.info("Retrieving first status in timeline")
-        while len(statuses):
-            max_id = statuses[-1].id
-            for status in statuses:
-                if parsed_args.protection_tag in status.text[0:len(parsed_args.protection_tag)]:
-                    __log.info(f"Tweet with ID {status.id:d} skipped. Protection tag present.")
-                    continue
-                elif date_until.astimezone() <= parser.parse(status.created_at).astimezone():
-                    __log.info(f"Tweet with ID {status.id:d} skipped. Not old enough to be removed.")
-                    continue
-                else:
-                    if parsed_args.saving_directory:
-                        __log.info(f"Saving tweet with ID {status.id:d}.")
-                        with open(f"{parsed_args.saving_directory}/{status.id:d}", "wb") as file:
-                            pickle.dump(status.AsDict(), file)
+    _log.info(
+        "Tweeter Amnesia Service Configs: "
+        f"Username [{storage_location}]; "
+        f"Protection Tag [{storage_location}]; "
+        f"Storage Location [{protection_tag}]; "
+        f"Deleting Tweets created before than [{date_until.strftime('%Y/%m/%d %H:%M:%S'):s}]"
+    )
 
-                    api.DestroyStatus(status.id)
-                    removed_tweets_counter += 1
-                    __log.warning(f"Tweet {status.id:d} deleted.")
-            statuses = api.GetUserTimeline(trim_user=True, max_id=max_id-1, count=200)
-        __log.info(f"Total number of deleted tweets: {removed_tweets_counter:d}.")
+    api = Api(
+        bearer_token=service_configurations.twitter_configurations.bearer_token,
+        sleep_on_rate_limit=False
+    )
 
-    except Exception:
-        custom_logging_callback(__log, logging.ERROR, *sys.exc_info())
-        exit(-1)
+    response = api.get_user(username=username)
+    user_id = response.data.id
+    _log.info(f"Username is [{username}] with User ID [{user_id}]")
 
-    __log.info("It's done!")
+    continue_fecthing = True
+    search_parameters = {
+        "user_id": user_id,
+        "end_time": rfc3339.rfc3339(date_until),
+        "tweet_fields": "id,text,created_at"
+    }
+
+    removed_tweets_counter = 0
+    while continue_fecthing:
+        response = api.get_timelines(**search_parameters)
+
+        for tweet in response.data:
+            if protection_tag in tweet.text:
+                _log.info(f"Tweet with ID [{tweet.id}] skipped. Protection tag present.")
+                continue
+            else:
+                if storage_location:
+                    _log.info(f"Saving tweet with ID [{tweet.id}].")
+                    with open(f"{storage_location}/{tweet.id}", "wb") as file:
+                        pickle.dump(tweet.__dict__, file)
+
+                api.delete_tweet(tweet.id)
+                removed_tweets_counter += 1
+                _log.warning(f"Tweet [{tweet.id}] deleted.")
+
+        continue_fecthing = response.meta.next_token
+        search_parameters = {
+            "user_id": user_id,
+            "tweet_fields": "id,text,created_at",
+            "pagination_token": response.meta.next_token
+        }
+    _log.info(f"Total number of deleted tweets is [{removed_tweets_counter:d}].")
+    _log.info("It's done!")
     exit(0)
-
-
-if __name__ == '__main__':
-    main()
