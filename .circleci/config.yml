@@ -27,7 +27,7 @@ jobs:
             cd ~/repo
 
             GV="$(echo $CIRCLE_TAG | sed 's/^v//')+$(echo $CIRCLE_SHA1 | cut -c -7)" && sed -i "s/99.99.99999+fffffff/$GV/g" src/twitter_amnesia/version.py
-            pip wheel -w ./build_wheel --no-deps .
+            pip wheel -w ./dist --no-deps .
       - run:
           name: Run Twine and Upload Wheel Packet
           command: |
