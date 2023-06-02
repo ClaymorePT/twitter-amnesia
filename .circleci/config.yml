@@ -8,7 +8,7 @@ version: 2.1
 executors:
   python_executor:
     docker:
-      - image: python:3.8
+      - image: python:3.11
 
 
 jobs:
@@ -25,21 +25,42 @@ jobs:
           name: Build Wheel Package
           command: |
             cd ~/repo
-            python setup.py bdist_wheel
+
+            GV="$(echo $CIRCLE_TAG | sed 's/^v//'")+$(echo $CIRCLE_SHA1 | cut -c -7)" && sed -i "s/99.99.99999+fffffff/$GV/g" src/twitter_amnesia/version.py
+            pip wheel -w ./build_wheel --no-deps .
       - run:
           name: Run Twine and Upload Wheel Packet
           command: |
             cd ~/repo
             twine upload -u ${PYPI_USERNAME} -p ${PYPI_PASSWORD} --verbose  ./dist/*
 
+  build-test-only:
+    executor: python_executor
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Build Wheel Package
+          command: |
+            cd ~/repo
+            pip wheel -w ./build_wheel --no-deps .
+
 workflows:
-  version: 2.1
   workflows-build-package:
     jobs:
       - deploy-package:
           filters:
             tags:
-              only: /V([0-9]+\.[0-9]+\.[0-9]+)/
+              only: /v([0-9]+\.[0-9]+\.[0-9]+)/
             branches:
               only:
-                - release
+                - development
+
+  workflows-build-package-only:
+    jobs:
+      - build-test-only:
+          filters:
+            branches:
+              ignore:
+                - development
+
