@@ -1,3 +1,13 @@
+PROJECT NO LONGER FUNCTIONAL DUE TO TWITTER CHANGES IN API
+==========================================================
+This code no longer works, despite my efforts to make it
+work with Twiter v2 API.
+In order to make it work, it would require manual intervention
+from the user to provide a manual mechanism for authentication.
+As a result, this app no longer serves its purpose and this
+project will no longer be supported.
+
+
 Twitter Amnesia
 ===============
 

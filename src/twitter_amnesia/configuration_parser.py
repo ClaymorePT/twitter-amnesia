@@ -44,8 +44,8 @@ _CONFIGURATION_FILE_SCHEMA = Schema({
     "protection_tag": Schema(And(str,  _PROTECTION_TAG_RE.match), error="'protection_tag' has the format [x] where x are alphanumeric characteres."),
     Optional("storage_location"): And(
         Schema(str, error="'storage_location' format must be a valid string."),
-        Schema(lambda path: Path(path).exists(), error="'fax_information_cache' must reference an existing directory."),
-        Schema(lambda path: Path(path).is_dir(), error="'fax_information_cache' must reference a directory."),
+        Schema(lambda path: Path(path).exists(), error="'storage_location' must reference an existing directory."),
+        Schema(lambda path: Path(path).is_dir(), error="'storage_location' must reference a directory."),
     ),
     "days_to_expire": Schema(And(int, lambda x: x > 0), error="'days_to_expire' format must be an integer bigger than 0."),
 })
